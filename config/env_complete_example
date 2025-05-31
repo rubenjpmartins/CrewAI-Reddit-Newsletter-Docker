@@ -1,0 +1,48 @@
+# Reddit AI Newsletter Generator - Environment Configuration
+# Copy this content to a .env file and fill in your actual values
+
+# ===== REQUIRED: OpenRouter API Configuration =====
+# Get your API key from https://openrouter.ai/
+OPENAI_API_KEY=your_openrouter_api_key_here
+
+# Choose your preferred AI model (default: mistralai/mistral-7b-instruct)
+# Popular options:
+# - anthropic/claude-3.5-sonnet (recommended)
+# - openai/gpt-4o
+# - google/gemini-2.0-flash-exp
+# - meta-llama/llama-3.1-405b-instruct
+# - anthropic/claude-3-haiku (budget-friendly)
+# - mistralai/mistral-7b-instruct (default)
+OPENROUTER_MODEL=mistralai/mistral-7b-instruct
+
+# ===== REQUIRED: Flask Configuration =====
+# Generate a secure random string for session encryption
+SECRET_KEY=your_super_secure_secret_key_here
+
+# ===== REQUIRED: Reddit API Configuration =====
+# Get credentials from https://www.reddit.com/prefs/apps
+# Create a new app with type "script" for personal use
+REDDIT_CLIENT_ID=your_reddit_client_id
+REDDIT_CLIENT_SECRET=your_reddit_client_secret
+REDDIT_USER_AGENT=your_app_name_v1.0
+
+# ===== OPTIONAL: Environment Settings =====
+# Set to 'development' for local testing, 'production' for deployment
+FLASK_ENV=development
+
+# ===== OPTIONAL: Advanced Settings =====
+# Uncomment and modify if needed
+# FLASK_DEBUG=true
+# FLASK_HOST=0.0.0.0
+# FLASK_PORT=5000
+
+# ===== REDDIT CONFIGURATION INSTRUCTIONS =====
+# 1. Go to https://www.reddit.com/prefs/apps
+# 2. Click "Create App" or "Create Another App"
+# 3. Choose a name for your app
+# 4. Select "script" as the app type
+# 5. Add a description (optional)
+# 6. Set redirect URI to: http://localhost:8080 (not used but required)
+# 7. Copy the client ID (appears under your app name)
+# 8. Copy the client secret
+# 9. Create a descriptive user agent string (e.g., "MyNewsletterBot v1.0") 

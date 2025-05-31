@@ -1,0 +1,26 @@
+services:
+  reddit-newsletter:
+    build: .
+    ports:
+      - "3000:5000"
+    env_file:
+      - .env
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    volumes:
+      # Mount logs directory for persistent logging
+      - ./logs:/tmp:rw
+    environment:
+      - FLASK_ENV=production
+      - PYTHONUNBUFFERED=1
+    networks:
+      - reddit-newsletter-network
+
+networks:
+  reddit-newsletter-network:
+    driver: bridge 
