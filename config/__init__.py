@@ -27,6 +27,9 @@ class Config:
     REDDIT_CLIENT_SECRET = os.getenv("REDDIT_CLIENT_SECRET")
     REDDIT_USER_AGENT = os.getenv("REDDIT_USER_AGENT")
     
+    # Predefined Subreddits (Optional)
+    PREDEFINED_SUBREDDITS = os.getenv("PREDEFINED_SUBREDDITS", "LocalLLaMA,MachineLearning,programming,technology,artificial,ArtificialIntelligence,singularity,OpenAI,ChatGPT")
+    
     # Application Settings
     LOG_FILE = "/tmp/app.log"
     LOG_LEVEL = "INFO"
@@ -42,6 +45,17 @@ class Config:
     @property
     def has_reddit_config(self):
         return bool(self.REDDIT_CLIENT_ID and self.REDDIT_CLIENT_SECRET and self.REDDIT_USER_AGENT)
+    
+    @property
+    def predefined_subreddits(self):
+        """Parse predefined subreddits from environment variable into a list"""
+        if not self.PREDEFINED_SUBREDDITS:
+            return []
+        
+        # Split by comma and clean up whitespace
+        subreddits = [s.strip() for s in self.PREDEFINED_SUBREDDITS.split(',')]
+        # Filter out empty strings
+        return [s for s in subreddits if s]
 
 # Create singleton instance
 config = Config() 

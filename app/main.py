@@ -29,7 +29,7 @@ newsletter_status = "ready"  # ready, processing, completed, error
 @app.route('/')
 def index():
     logger.info("Index page accessed")
-    return render_template("index.html")
+    return render_template("index.html", predefined_subreddits=config.predefined_subreddits)
 
 @app.route('/generate-newsletter')
 def generate_newsletter():
