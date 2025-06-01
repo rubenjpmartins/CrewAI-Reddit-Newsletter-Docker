@@ -1,0 +1,22 @@
+# Copy these environment variables into CapRover Dashboard
+# Go to: Apps > reddit-newsletter > App Configs > Environment Variables
+
+# REQUIRED VARIABLES:
+OPENAI_API_KEY=sk-or-v1-your-openrouter-api-key-here-64-characters-long
+SECRET_KEY=cc1494ed417a89f4349e7eb8d21471a7c845f11e124bc5165c66677fa1b8f4d2
+
+# OPTIONAL VARIABLES (for live Reddit data):
+REDDIT_CLIENT_ID=your_reddit_client_id_here
+REDDIT_CLIENT_SECRET=your_reddit_client_secret_here
+REDDIT_USER_AGENT=RedditNewsletterBot/1.0
+
+# CONFIGURATION VARIABLES:
+OPENROUTER_MODEL=mistralai/mistral-7b-instruct
+FLASK_ENV=production
+FLASK_DEBUG=false
+
+# INSTRUCTIONS:
+# 1. Replace 'your-openrouter-api-key-here' with your actual OpenRouter API key
+# 2. Keep the SECRET_KEY as generated above or generate a new one
+# 3. Add Reddit credentials if you want live data (otherwise uses demo data)
+# 4. Add these one by one in CapRover dashboard using the + button 

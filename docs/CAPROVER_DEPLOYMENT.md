@@ -1,14 +1,14 @@
 # 🚀 CapRover Deployment Guide
 
-This guide will help you deploy the CrewAI AI Daily Briefing Assistant to your CapRover server.
+This guide will help you deploy the Reddit AI Newsletter Generator to your CapRover server.
 
 ## 📋 Prerequisites
 
 - CapRover server running and accessible
 - CapRover CLI installed (`npm install -g caprover`)
 - Your CapRover server configured and logged in
-- OpenRouter API key
-- Google OAuth credentials
+- OpenRouter API key (required)
+- Reddit API credentials (optional - uses demo data if not provided)
 
 ## 🎯 Deployment Methods
 
@@ -19,7 +19,7 @@ This guide will help you deploy the CrewAI AI Daily Briefing Assistant to your C
 1. **Login to CapRover Dashboard**: `https://your-caprover-domain.com`
 2. **Go to Apps**: Click on "Apps" in the sidebar
 3. **Create New App**: 
-   - App Name: `ai-briefing-assistant`
+   - App Name: `reddit-newsletter`
    - Check "Has Persistent Data" if you want to persist logs
 4. **Click "Create New App"**
 
@@ -27,16 +27,24 @@ This guide will help you deploy the CrewAI AI Daily Briefing Assistant to your C
 
 In the CapRover dashboard, go to your app and set these environment variables:
 
+**Required Variables:**
 ```bash
-# Required Variables
-OPENAI_API_KEY=your_openrouter_api_key_here
-SECRET_KEY=your_super_secure_secret_key_here
-GOOGLE_CREDENTIALS_BASE64=your_base64_encoded_google_credentials
-GOOGLE_REDIRECT_URI=https://your-app-name.your-caprover-domain.com/callback
+OPENAI_API_KEY=sk-or-v1-your-openrouter-api-key-here-64-characters-long
+SECRET_KEY=your-super-secure-secret-key-here-generate-random-string
+```
 
-# Optional Variables
+**Optional Variables (for live Reddit data):**
+```bash
+REDDIT_CLIENT_ID=your_reddit_client_id_here
+REDDIT_CLIENT_SECRET=your_reddit_client_secret_here
+REDDIT_USER_AGENT=RedditNewsletterBot/1.0
+```
+
+**Configuration Variables:**
+```bash
 OPENROUTER_MODEL=mistralai/mistral-7b-instruct
 FLASK_ENV=production
+FLASK_DEBUG=false
 ```
 
 #### Step 3: Deploy from GitHub
@@ -44,13 +52,13 @@ FLASK_ENV=production
 1. **Go to Deployment Tab** in your app
 2. **Select "Deploy from Github/Bitbucket/Gitlab"**
 3. **Repository Info**:
-   - Repository: `https://github.com/rubenjpmartins/CrewAI-AI-Daily-Briefing-Assistant-Docker`
+   - Repository: `https://github.com/rubenjpmartins/CrewAI-Reddit-Newsletter-Docker`
    - Branch: `main`
-   - Username: `rubenjpmartins` (if public repo, leave empty)
+   - Username: Leave empty for public repo
    - Password: Leave empty for public repo
 4. **Click "Deploy Now"**
 
-#### Step 4: Configure Domain (Optional)
+#### Step 4: Configure Domain & HTTPS
 
 1. **Go to HTTP Settings** tab
 2. **Enable HTTPS**: Recommended for production
@@ -73,58 +81,77 @@ caprover login
 
 ```bash
 # Navigate to your project directory
-cd /path/to/CrewAI-AI-Daily-Briefing-Assistant-Docker
+cd /path/to/CrewAI-Reddit-Newsletter-Docker
 
 # Deploy to CapRover
 caprover deploy
 ```
 
 Follow the prompts:
-- **App Name**: `ai-briefing-assistant`
+- **App Name**: `reddit-newsletter`
 - **Captain Definition**: Use existing `captain-definition` file
 
 #### Step 3: Set Environment Variables via CLI
 
 ```bash
-# Set environment variables
-caprover api --caproverUrl https://your-caprover-domain.com --path "/user/apps/appDefinitions/ai-briefing-assistant" --method POST --data '{
+# Set required environment variables
+caprover api --caproverUrl https://your-caprover-domain.com --path "/user/apps/appDefinitions/reddit-newsletter" --method POST --data '{
   "envVars": [
-    {"key": "OPENAI_API_KEY", "value": "your_openrouter_api_key_here"},
-    {"key": "SECRET_KEY", "value": "your_super_secure_secret_key_here"},
-    {"key": "GOOGLE_CREDENTIALS_BASE64", "value": "your_base64_encoded_google_credentials"},
-    {"key": "GOOGLE_REDIRECT_URI", "value": "https://ai-briefing-assistant.your-caprover-domain.com/callback"},
+    {"key": "OPENAI_API_KEY", "value": "sk-or-v1-your-openrouter-api-key-here"},
+    {"key": "SECRET_KEY", "value": "your-super-secure-secret-key-here"},
+    {"key": "REDDIT_CLIENT_ID", "value": "your_reddit_client_id"},
+    {"key": "REDDIT_CLIENT_SECRET", "value": "your_reddit_client_secret"},
+    {"key": "REDDIT_USER_AGENT", "value": "RedditNewsletterBot/1.0"},
     {"key": "OPENROUTER_MODEL", "value": "mistralai/mistral-7b-instruct"},
-    {"key": "FLASK_ENV", "value": "production"}
+    {"key": "FLASK_ENV", "value": "production"},
+    {"key": "FLASK_DEBUG", "value": "false"}
   ]
 }'
+```
+
+## 🔧 Getting Your API Keys
+
+### **OpenRouter API Key (Required)**
+
+1. **Go to OpenRouter**: https://openrouter.ai/
+2. **Sign up** for an account
+3. **Go to Dashboard → Keys**
+4. **Create a new API key**
+5. **Copy the key** (starts with `sk-or-v1-`)
+
+### **Reddit API Credentials (Optional)**
+
+1. **Go to Reddit Apps**: https://www.reddit.com/prefs/apps
+2. **Click "Create App"** or "Create Another App"
+3. **Choose "script"** as the app type
+4. **Fill in the details**:
+   - Name: `Reddit Newsletter Generator`
+   - Description: `AI-powered newsletter from Reddit content`
+   - About URL: `https://your-app-domain.com`
+   - Redirect URI: `http://localhost:8080` (not used, but required)
+5. **Copy the client ID and secret**
+
+### **Generate Secret Key**
+
+```bash
+# Generate a secure secret key
+python3 -c "import secrets; print(secrets.token_hex(32))"
 ```
 
 ## 🔧 Configuration Details
 
 ### **Environment Variables Explained**
 
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `OPENAI_API_KEY` | Your OpenRouter API key | `sk-or-v1-...` |
-| `SECRET_KEY` | Flask session secret (generate random string) | `your-secret-key-here` |
-| `GOOGLE_CREDENTIALS_BASE64` | Base64 encoded Google OAuth credentials | `eyJ3ZWIiOnsic...` |
-| `GOOGLE_REDIRECT_URI` | OAuth callback URL | `https://your-app.domain.com/callback` |
-| `OPENROUTER_MODEL` | AI model to use | `mistralai/mistral-7b-instruct` |
-| `FLASK_ENV` | Flask environment | `production` |
-
-### **Google OAuth Setup for CapRover**
-
-1. **Google Cloud Console**: Go to your OAuth credentials
-2. **Authorized Redirect URIs**: Add your CapRover app URL:
-   ```
-   https://ai-briefing-assistant.your-caprover-domain.com/callback
-   ```
-3. **Update Credentials**: Download updated `credentials.json`
-4. **Convert to Base64**:
-   ```bash
-   base64 -i credentials.json
-   ```
-5. **Set Environment Variable**: Use the base64 output
+| Variable | Description | Required | Example |
+|----------|-------------|----------|---------|
+| `OPENAI_API_KEY` | Your OpenRouter API key | ✅ Yes | `sk-or-v1-...` |
+| `SECRET_KEY` | Flask session secret | ✅ Yes | `a1b2c3d4e5f6...` |
+| `REDDIT_CLIENT_ID` | Reddit API client ID | ❌ No | `abc123xyz` |
+| `REDDIT_CLIENT_SECRET` | Reddit API client secret | ❌ No | `secret123` |
+| `REDDIT_USER_AGENT` | Reddit API user agent | ❌ No | `RedditNewsletterBot/1.0` |
+| `OPENROUTER_MODEL` | AI model to use | ❌ No | `mistralai/mistral-7b-instruct` |
+| `FLASK_ENV` | Flask environment | ❌ No | `production` |
+| `FLASK_DEBUG` | Debug mode | ❌ No | `false` |
 
 ## 🚀 Deployment Process
 
@@ -149,41 +176,48 @@ caprover api --caproverUrl https://your-caprover-domain.com --path "/user/apps/a
 2. **Health Check**: Visit `https://your-app-url.com/health`
 3. **API Status**: Visit `https://your-app-url.com/api-status`
 
+### **Test Your Deployment**
+
+```bash
+# Health check
+curl https://your-app-url.com/health
+
+# Generate a test newsletter
+curl "https://your-app-url.com/generate-newsletter?subreddit=programming"
+
+# Access the web interface
+# Open https://your-app-url.com in your browser
+```
+
 ### **View Logs**
 
 ```bash
 # Via CapRover CLI
-caprover logs --app ai-briefing-assistant
+caprover logs --app reddit-newsletter
 
 # Or in CapRover Dashboard
-# Go to Apps > ai-briefing-assistant > App Logs
+# Go to Apps > reddit-newsletter > App Logs
 ```
 
 ### **Common Issues & Solutions**
 
 #### **Build Failures**
-```bash
-# Check build logs in CapRover dashboard
-# Common causes:
-# - Missing captain-definition file
-# - Dockerfile syntax errors
-# - Dependency conflicts
-```
+- **Missing captain-definition file**: Ensure file exists in root
+- **Dockerfile syntax errors**: Check Dockerfile syntax
+- **Dependency conflicts**: Review requirements.txt
 
 #### **Runtime Errors**
-```bash
-# Check application logs
-# Common causes:
-# - Missing environment variables
-# - Invalid Google credentials
-# - OpenRouter API key issues
-```
+- **Missing OPENAI_API_KEY**: Set in environment variables
+- **Invalid API key**: Verify OpenRouter API key is correct
+- **Port issues**: CapRover should handle this automatically
 
-#### **OAuth Redirect Issues**
+#### **Application Not Responding**
 ```bash
-# Verify redirect URI matches exactly:
-# Google Console: https://your-app.domain.com/callback
-# Environment: GOOGLE_REDIRECT_URI=https://your-app.domain.com/callback
+# Check if container is running
+# In CapRover dashboard: Apps > reddit-newsletter > App Logs
+
+# Verify environment variables are set
+# In CapRover dashboard: Apps > reddit-newsletter > App Configs > Environment Variables
 ```
 
 ## 🔄 Updates & Maintenance
@@ -209,7 +243,7 @@ caprover deploy
 ```bash
 # Scale to multiple instances (in CapRover dashboard)
 # Go to App Configs > Instance Count
-# Increase for higher availability
+# Increase for higher availability and better performance
 ```
 
 ## 🛡️ Security Considerations
@@ -218,18 +252,18 @@ caprover deploy
 
 - ✅ **HTTPS Enabled**: Force HTTPS in CapRover
 - ✅ **Environment Variables**: Never commit secrets to Git
-- ✅ **Google OAuth**: Restrict redirect URIs
 - ✅ **API Keys**: Use environment variables only
+- ✅ **Secret Key**: Generate and store securely
 - ✅ **Regular Updates**: Keep dependencies updated
+- ✅ **Input Validation**: Application includes built-in validation
 
 ### **Backup Strategy**
 
 ```bash
 # Backup environment variables
-caprover api --path "/user/apps/appDefinitions/ai-briefing-assistant" --method GET
+caprover api --path "/user/apps/appDefinitions/reddit-newsletter" --method GET
 
-# Backup application data (if using persistent volumes)
-# Configure in CapRover dashboard under "App Configs"
+# Save the output to a secure location
 ```
 
 ## 📊 Performance Optimization
@@ -243,27 +277,37 @@ caprover api --path "/user/apps/appDefinitions/ai-briefing-assistant" --method G
 # - Instance Count: 1 for development, 2+ for production
 ```
 
-### **Monitoring**
+### **Performance Tips**
 
-```bash
-# Set up monitoring in CapRover:
-# - Enable app metrics
-# - Configure alerts for downtime
-# - Monitor resource usage
-```
+- **Memory**: The AI processing requires at least 512MB RAM
+- **CPU**: Newsletter generation is CPU-intensive
+- **Scaling**: Use multiple instances for high traffic
+- **Caching**: Application includes intelligent demo data caching
 
 ## 🎉 Success!
 
-Once deployed, your AI Daily Briefing Assistant will be available at:
-`https://ai-briefing-assistant.your-caprover-domain.com`
+Once deployed, your Reddit AI Newsletter Generator will be available at:
+`https://reddit-newsletter.your-caprover-domain.com`
 
 ### **Test the Deployment**
 
 1. **Health Check**: `https://your-app-url.com/health`
 2. **API Status**: `https://your-app-url.com/api-status`
-3. **Login Flow**: Test Google OAuth login
-4. **Generate Briefing**: Test the full workflow
+3. **Web Interface**: Open `https://your-app-url.com` in browser
+4. **Generate Newsletter**: Test with any subreddit name
+5. **API Endpoint**: `https://your-app-url.com/generate-newsletter?subreddit=programming`
+
+### **Available Features**
+
+- ✅ **Any Subreddit**: Generate newsletters for any public subreddit
+- ✅ **AI Analysis**: Intelligent content analysis and summarization
+- ✅ **Modern UI**: Responsive web interface with real-time updates
+- ✅ **API Access**: RESTful API for programmatic access
+- ✅ **Demo Mode**: Works without Reddit API using intelligent demo data
+- ✅ **Security**: Production-ready with comprehensive security measures
 
 ---
 
-**🚀 Your CrewAI Daily Briefing Assistant is now running on CapRover!** 
+**🚀 Your Reddit AI Newsletter Generator is now running on CapRover!**
+
+Need help? Check the logs in CapRover dashboard or contact support. 
